@@ -33,6 +33,10 @@ class ProjectModel extends BaseModel {
     }
 
 
+    public static function getProjectList(){
+        return ProjectModel::mk()->where("delete_at is  null")->where("status = 1")->select()->toArray();
+    }
+
     /**
      * 格式化创建时间
      * @param string $value

@@ -1,27 +1,22 @@
 {extend name="../../admin/view/main"}
 
 {block name="content"}
-{include file='soft/project/formstyle'}
+{include file='soft/subject/formstyle'}
 <form action="{:sysuri()}" method="post" data-auto="true" class="layui-form layui-card" id="GoodsForm">
     <div class="layui-card-body">
-
         <label class="layui-form-item block relative">
-            <span class="help-label"><b>项目名称</b>e</span>
+            <span class="help-label label-required-prev"><b>所属项目</b></span>
+            <select class="layui-select" lay-search name="project_id">
+                {foreach $projectList as $project}
+                    <option selected value="{$project.id}">{$project.name}</option>
+                {/foreach}
+            </select>
+        </label>
+        <label class="layui-form-item block relative">
+            <span class="help-label"><b>产品名称</b>e</span>
             <input class="layui-input" name="name" placeholder="请输入项目名称" required value="{$vo.name|default=''}">
         </label>
-        <label class="layui-form-item block relative">
-            <span class="help-label"><b>项目编号</b></span>
-            <input class="layui-input" name="version" placeholder="请输入项目编号" required value="{$vo.version|default=''}">
-        </label>
-        <label class="layui-form-item block relative">
-            <span class="help-label"><b>负责人</b></span>
-            <input class="layui-input" name="charge_name" placeholder="请输入负责人" required value="{$vo.charge_name|default=''}">
-        </label>
-        <label class="layui-form-item block">
-            <span class="help-label"><b>项目描述</b></span>
-            <textarea class="layui-textarea" name="desc" placeholder="请输入项目">{$vo.desc|default=''|raw}</textarea>
-        </label>
-        <div class="hr-line-dashed margin-top-40"></div>
+        
         {notempty name='vo.id'}<input name='id' type='hidden' value='{$vo.id}'>{/notempty}
 
 

@@ -40,7 +40,7 @@
                 <th class='text-left nowrap'>项目信息</th>
                 <th class='text-left nowrap'>负责人</th>
                 <th class='text-left nowrap'>项目编号</th>
-                <!-- <th class='text-left nowrap'>项目状态</th> -->
+                <th class='text-left nowrap'>产品名称</th>
                 <th class='text-left nowrap'>创建时间</th>
                 <th class='list-table-sort-td'>
                     <button class="layui-btn layui-btn-xs" data-reload type="button">刷 新</button>
@@ -69,19 +69,19 @@
                         <div><span>{$vo.version|default='--'}</span></div>
                     </div>
                 </td>
-                <!-- <td class='nowrap'>
-                    <div class="inline-block sub-span-blue">
-                        <div><span>{$vo.status|default='--'}</span></div>
-                    </div>
-                </td> -->
                 <td class='nowrap'>
                     <div class="inline-block sub-span-blue">
-                        <div><span>{$vo.create_at|default='--'}</span></div>
+                        <div><span>{$vo.s_name|default='--'}</span></div>
+                    </div>
+                </td>
+                <td class='nowrap'>
+                    <div class="inline-block sub-span-blue">
+                        <div><span>{$vo.sc_time|default='--'}</span></div>
                     </div>
                 </td>
                 <td class='nowrap sub-strong-blue'>
                     <!--{if auth("edit")}-->
-                    <a class="layui-btn layui-btn-xs" data-open='{:url("edit")}?id={$vo.id}'>编 辑</a>
+                    <a class="layui-btn layui-btn-xs" data-open='{:url("edit")}?id={$vo.sid}'>编 辑</a>
                     <!--{else}-->
                     <a class="layui-btn layui-btn-xs layui-btn-primary layui-disabled" data-tips-text="您没有编辑商品的权限哦！">编 辑</a>
                     <!--{/if}-->
@@ -89,7 +89,7 @@
                     {if isset($type) and $type eq 'index'}
                     
                     <!--{if auth("remove")}-->
-                    <a class="layui-btn layui-btn-xs layui-btn-danger" data-action="{:url('remove')}" data-confirm="确定要移入回收站吗？" data-value="id#{$vo.id};delete_at#{:date("y-m-d H:i:s",time())}">删 除</a>
+                    <a class="layui-btn layui-btn-xs layui-btn-danger" data-action="{:url('remove')}" data-confirm="确定要移入回收站吗？" data-value="id#{$vo.sid};delete_at#{:date("y-m-d H:i:s",time())}">删 除</a>
                     <!--{/if}-->
                     {/if}
                 </td>
