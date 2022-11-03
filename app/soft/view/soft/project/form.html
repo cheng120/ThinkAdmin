@@ -1,0 +1,205 @@
+{extend name="../../admin/view/main"}
+
+{block name="content"}
+{include file='soft/project/formstyle'}
+<form action="{:sysuri()}" method="post" data-auto="true" class="layui-form layui-card" id="GoodsForm">
+    <div class="layui-card-body">
+
+        <label class="layui-form-item block relative">
+            <span class="help-label"><b>项目名称</b>e</span>
+            <input class="layui-input" name="name" placeholder="请输入项目名称" required value="{$vo.name|default=''}">
+        </label>
+        <label class="layui-form-item block relative">
+            <span class="help-label"><b>项目编号</b></span>
+            <input class="layui-input" name="version" placeholder="请输入项目编号" required value="{$vo.version|default=''}">
+        </label>
+        <label class="layui-form-item block relative">
+            <span class="help-label"><b>负责人</b></span>
+            <input class="layui-input" name="charge_name" placeholder="请输入负责人" required value="{$vo.charge_name|default=''}">
+        </label>
+        <label class="layui-form-item block">
+            <span class="help-label"><b>项目描述</b></span>
+            <textarea class="layui-textarea" name="desc" placeholder="请输入项目">{$vo.desc|default=''|raw}</textarea>
+        </label>
+        <div class="hr-line-dashed margin-top-40"></div>
+        {notempty name='vo.id'}<input name='id' type='hidden' value='{$vo.id}'>{/notempty}
+
+
+        <div class="layui-form-item text-center">
+            <button class="layui-btn layui-btn-danger" ng-click="pageBack()" type="button">取消</button>
+            <button class="layui-btn" type="submit">保存</button>
+        </div>
+    </div>
+</form>
+{/block}
+
+{block name='script'}
+<!-- <label class="layui-hide">
+    <textarea id="GoodsSpecs">{$vo.data_specs|raw|default=''}</textarea>
+    <textarea id="GoodsItems">{$vo.data_items|raw|default=''}</textarea>
+</label> -->
+
+<script>
+    /*! 入会礼包切换 */
+    window.form.on('radio(vip_entry)', setVipEntry);
+    setVipEntry({value: ('{$vo.vip_entry|default="0"}')});
+
+    function setVipEntry(data, $input) {
+        $input = $('select[name="vip_upgrade"]');
+        if (parseInt(data.value)) {
+            $input.removeClass('layui-disabled').removeAttr('disabled');
+        } else {
+            $input.addClass('layui-disabled').attr('disabled', 'disabled');
+        }
+        layui.form.render();
+    }
+
+    /*! 加载扩展插件 */
+    require(['ckeditor', 'angular'], function () {
+        window.createEditor('[name="content"]', {height: 500});
+        var app = angular.module("GoodsForm", []).run(callback);
+        angular.bootstrap(document.getElementById(app.name), [app.name]);
+
+        function getRand(length, prefix) {
+            return (function (time, code) {
+                code += parseInt(time.substring(0, 1)) + parseInt(time.substring(1, 2)) + time.substring(2);
+                while (code.length < length) code += Math.round(Math.random() * 10);
+                return code;
+            })(Date.now().toString(), prefix || '' + '')
+        }
+
+        function callback($rootScope) {
+            $rootScope.mode = '{$mode|default="add"}', $rootScope.navas = [];
+            $rootScope.items = angular.fromJson(angular.element('#GoodsItems').val() || '[]') || {};
+            $rootScope.cache = angular.fromJson(angular.element('#GoodsItems').val() || '[]') || {};
+            $rootScope.specs = angular.fromJson(angular.element('#GoodsSpecs').val() || '[{"name":"默认分组","list":[{"name":"默认规格","check":true}]}]');
+            /*! 批量设置数值 */
+            $rootScope.batchSet = function (name, fixed, title) {
+                layer.prompt({
+                    title: title || (fixed === null ? '请输入内容' : '请输入数量【 取值范围：1 - 999999 】'),
+                    formType: 0, value: fixed === null ? '' : (1).toFixed(fixed), success: function ($fn) {
+                        var min = (1).toFixed(fixed), max = (999999).toFixed(fixed);
+                        $fn.find('.layui-layer-input').attr({'data-value-min': min, 'data-value-max': max, 'data-blur-number': fixed});
+                    }
+                }, function (value, index) {
+                    layer.close(index), $rootScope.$apply(function () {
+                        if (fixed !== null) value = (parseFloat(value) || 0).toFixed(fixed);
+                        $rootScope.items.forEach(function (rows) {
+                            rows.forEach(function (item) {
+                                item[name] = value;
+                            });
+                        });
+                    });
+                });
+            };
+            $rootScope.pageBack = function () {
+                $.msg.confirm('确定要取消编辑吗？', function (index) {
+                    history.back(), $.msg.close(index);
+                });
+            };
+            $rootScope.setValue = function (key, name, value, callback) {
+                $rootScope.items[key] = $rootScope.items[key] || {};
+                $rootScope.cache[key] = $rootScope.cache[key] || {};
+                if (typeof callback === 'string' && callback.indexOf('_') > -1) {
+                    value = eval(callback.replace('_', "'" + value + "'"));
+                }
+                return $rootScope.cache[key][name] = $rootScope.items[key][name] = value;
+            };
+            $rootScope.getValue = function (key, name, value) {
+                var cache = $rootScope.cache[key] || {};
+                if (typeof cache[name] === 'undefined') {
+                    $rootScope.setValue(key, name, value, '_')
+                    cache = $rootScope.cache[key] || {};
+                }
+                return cache[name];
+            };
+            /*! 去除空白字符 */
+            $rootScope.trimSpace = function (value) {
+                return (value + '').replace(/\s*/ig, '');
+            };
+            /*! 当前商品规格发生变化时重新计算规格列表 */
+            $rootScope.$watch('specs', function () {
+                var data = [], navs = [], table = [[]];
+                $rootScope.specs.forEach(function (spec) {
+                    var temp = [];
+                    spec.list.forEach(function (item) {
+                        if (item.check && item.name.length > 0) {
+                            item.show = true, item.group = spec.name;
+                            temp.push(item);
+                        }
+                    });
+                    data.push(temp), navs.push(spec.name);
+                });
+                $rootScope.navas = navs;
+                /*! 表格交叉 */
+                data.forEach(function (rows) {
+                    var temp = [];
+                    table.forEach(function (line) {
+                        rows.forEach(function (item) {
+                            temp.push(line.concat(item));
+                        });
+                    });
+                    table = temp;
+                });
+                /*! 表格数据  */
+                data = angular.fromJson(angular.toJson(table));
+                data.forEach(function (rows) {
+                    var keys = [];
+                    rows.forEach(function (item) {
+                        keys.push(item.group + '::' + item.name);
+                    }), rows.every(function (item) {
+                        item.key = keys.join(';;');
+                        item.sku = $rootScope.getValue(item.key, 'sku', getRand(14, 'S'));
+                        item.status = !!$rootScope.getValue(item.key, 'status', 1);
+                        item.market = $rootScope.getValue(item.key, 'market', '0.00');
+                        item.balance = $rootScope.getValue(item.key, 'balance', '0.00');
+                        item.selling = $rootScope.getValue(item.key, 'selling', '0.00');
+                        item.integral = $rootScope.getValue(item.key, 'integral', '0');
+                        item.express = $rootScope.getValue(item.key, 'express', '1');
+                        item.virtual = $rootScope.getValue(item.key, 'virtual', '0');
+                        return false;
+                    });
+                });
+                $rootScope.items = data;
+            }, true);
+            /*! 判断规则是否能取消选择 */
+            $rootScope.checkListChecked = function (data, check) {
+                for (var i in data) if (data[i].check) return check;
+                return true;
+            };
+            /*! 下移整行规格分组 */
+            $rootScope.dnSpecRow = function (items, index) {
+                if (index + 1 < items.length) (function (item) {
+                    items.splice(index + 1, 1), items.splice(index, 0, item);
+                })(items[index + 1]);
+            };
+            /*! 上移整行规格分组 */
+            $rootScope.upSpecRow = function (items, index) {
+                if (index > 0) (function (item) {
+                    items.splice(index - 1, 1), items.splice(index, 0, item);
+                })(items[index - 1]);
+            };
+            /*! 移除整行规格分组 */
+            $rootScope.delSpecRow = function (items, index) {
+                items.splice(index, 1)
+            };
+            /*! 增加整行规格分组 */
+            $rootScope.addSpecRow = function (data) {
+                data.push({name: '规格分组' + data.length, list: [{name: '规格属性', check: true}]})
+            };
+            /*! 增加分组的属性 */
+            $rootScope.addSpecVal = function (data) {
+                data.push({name: '规格属性' + data.length, check: true});
+            };
+            /*! 移除分组的属性 */
+            $rootScope.delSpecVal = function (data, $index) {
+                var temp = [];
+                data.forEach(function (item, index) {
+                    if (parseInt(index) !== parseInt($index)) temp.push(item);
+                });
+                return temp;
+            };
+        }
+    });
+</script>
+{/block}

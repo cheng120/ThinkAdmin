@@ -1,0 +1,38 @@
+<form action="{:sysuri()}" autocomplete="off" class="layui-form layui-form-pane form-search" method="get" onsubmit="return false">
+
+    <div class="layui-form-item layui-inline">
+        <label class="layui-form-label">项目名称</label>
+        <label class="layui-input-inline">
+            <input class="layui-input" name="name" placeholder="请输入项目名称" value="{$get.name|default=''}">
+        </label>
+    </div>
+    <div class="layui-form-item layui-inline">
+        <label class="layui-form-label">项目负责人</label>
+        <label class="layui-input-inline">
+            <input class="layui-input" name="charge_name" placeholder="请输入项目负责人" value="{$get.charge_name|default=''}">
+        </label>
+    </div>
+    <div class="layui-form-item layui-inline">
+        <label class="layui-form-label">项目编号</label>
+        <label class="layui-input-inline">
+            <input class="layui-input" name="version" placeholder="请输入项目编号" value="{$get.version|default=''}">
+        </label>
+    </div>
+    <!-- <div class="layui-form-item layui-inline">
+        <label class="layui-form-label">项目状态</label>
+        <label class="layui-input-inline">
+            <select class="layui-select" name="status">
+                <option value=''>-- 全部状态 --</option>
+                {foreach ['正常','结束','归档'] as $k=>$v}
+                {if input('status','-') eq $k.''}
+                <option selected value="{$k}">{$v}</option>
+                {else}
+                <option value="{$k}">{$v}</option>
+                {/if}{/foreach}
+            </select>
+        </label>
+    </div> -->
+    <div class="layui-form-item layui-inline">
+        <button class="layui-btn layui-btn-primary"><i class="layui-icon">&#xe615;</i> 搜 索</button>
+    </div>
+</form>
