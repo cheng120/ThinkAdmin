@@ -59,7 +59,11 @@ class Project extends Base {
 
     protected function _form_filter(&$data) {
         $model = new ProjectModel();
-        $model->SetBaseData($data,$this->userinfo);
+        if($this->mode != "edit"){
+            $model->SetBaseData($data,$this->userinfo);
+        }else{
+            $data['update_at'] = date("Y-m-d H:i:s");
+        }
     }
 
 
