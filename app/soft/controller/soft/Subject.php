@@ -39,9 +39,10 @@ class Subject extends Base {
         if ($this->type === 'index') $query->where('s.delete_at is null');
         elseif ($this->type === 'recycle') $query->where("s.delete_at not null");
         else $this->error("无法加载 {$this->type} 数据列表！");
-        $query->like('name#name');
+        $query->like('p.name#name');
         $query->like('charge_name#charge_name');
         $query->like('version#version');
+        $query->like('s.name#s_name');
         // 列表排序并显示
         $query->order('id desc')->page();
     }
